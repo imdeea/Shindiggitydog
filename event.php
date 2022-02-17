@@ -11,10 +11,13 @@ require_once("rxs.php");
 $link = mysqli_connect($db_host, $db_user, $db_pasw, $db_db);
 
 # which event?
-$query = "SELECT p.*, u.handle, s.descr as state, f.id as favorite, 0 as offer -- , if(DATE(NOW()) >= p.offer_start AND DATE(NOW()) <= p.offer_end, 1, 0) as offer
+$query = "SELECT p.*, ui.handle as user_image, vi.handle as venue_image, v.name as venue_name, v.address as venue_address, v.city as venue_city, vs.descr as venue_state, v.zip as venue_zip, s.descr as state, f.id as favorite, 0 as offer -- , if(DATE(NOW()) >= p.offer_start AND DATE(NOW()) <= p.offer_end, 1, 0) as offer
 		FROM places p
-		JOIN users u ON p.userID = u.id
+		LEFT OUTER JOIN users_images ui ON ui.id = (SELECT id FROM users_images WHERE userID = p.userID ORDER BY seqno DESC LIMIT 1)
+		LEFT OUTER JOIN users_images vi ON vi.id = (SELECT id FROM users_images WHERE userID = p.venueID ORDER BY seqno DESC LIMIT 1)
+		LEFT OUTER JOIN users v ON v.id = p.venueID
 		LEFT OUTER JOIN states s ON p.stateID = s.id
+		LEFT OUTER JOIN states vs ON v.stateID = vs.id
 		LEFT OUTER JOIN favorites f ON p.id = f.placeID AND f.userID = " . $_COOKIE['id'] . "
 		WHERE p.status = 'A'
 		AND p.id = " . $_GET['id'] . "
@@ -59,7 +62,7 @@ include('header.php'); ?>
 			<div class="col-lg-6">
 
 				<section class="py-1 mt-3 page_header">
-				    <div class="container">
+				    <div class="container px-3">
 					   <div class="d-flex justify-content-between">
 						<div class="col-12">
 							<h1 class="fun-font"><?=strtoupper($place['name'])?></h1>
@@ -116,8 +119,8 @@ include('header.php'); ?>
 						}
 						?>
 						<div class="row text-sharp pt-3 event-dates">
-							<div class="col-md-2 text-center icon-col">
-								<i class="fal fa-calendar-day fa-fw fa-2x me-2 pt-1"></i>
+							<div class="col-md-2 text-start icon-col">
+								<i class="fal fa-calendar-day fa-fw fa-2x pt-1"></i>
 							</div>
 							<div class="col-md-10">
 								<ul class="list-unstyled mb-0 w-100">
@@ -179,21 +182,21 @@ include('header.php'); ?>
 						<?
 						if (!empty($place['ticket_needed'])) { ?>
 					 		<div class="row text-sharp pt-3">
-								<div class="col-md-2 text-center icon-col">
-									<i class="fal fa-ticket fa-fw fa-2x me-2 pt-1 fa-rotate-by" style="--fa-rotate-angle: 45deg;"></i>
+								<div class="col-md-2 text-start icon-col">
+									<i class="fal fa-ticket fa-fw fa-2x pt-1 fa-rotate-by" style="--fa-rotate-angle: 45deg;"></i>
 								</div>
-								<div class="col-md-10 align-items-center">
+								<div class="col-md-10">
 									<?php if (!is_null($place['ticket_price_low']) && $place['ticket_needed'] != "N") { ?>
 
 												<p class="pb-0 mb-0 lh-sm w-100 fun-font info-fontsize">
 													<?
 													if ($place['ticket_price_low'] != $place['ticket_price_high']) {
-														 ?>$<?=$place['ticket_price_low']?> &ndash; $<?=$place['ticket_price_high']?><?
+														 ?>$<?=number_format($place['ticket_price_low'], 2)?> &ndash; $<?=number_format($place['ticket_price_high'], 2)?><?
 													} else {
 														if ($place['ticket_price_low'] == 0) {
 															 ?>FREE<?
 														} else {
-															 ?>$<?=$place['ticket_price_low']?><?
+															 ?>$<?=number_format($place['ticket_price_low'], 2)?><?
 														}
 													}
 													?>
@@ -220,39 +223,62 @@ include('header.php'); ?>
 							<?
 						}
 
-						if (!empty($place['address'])) { ?>
-					 		<div class="row text-sharp pt-3">
-								<div class="col-md-2 text-center icon-col">
-									<i class="fal fa-location-smile fa-fw fa-2x me-2 pt-1"></i>
-								</div>
-								<div class="col-md-10 align-items-center location-info">
-									<div class="location-name fun-font info-fontsize"> Lorem Ipsum Dolor sit Amet</div>
+						if ($place['venueID'] > 0) {
+							$derived['venue'] = $place['venue_name'];
+							$derived['address'] = $place['venue_address'];
+							$derived['city'] = $place['venue_city'];
+							$derived['state'] = $place['venue_state'];
+							$derived['zip'] = $place['venue_zip'];
+						} else {
+							$derived['venue'] = $place['venue'];
+							$derived['address'] = $place['address'];
+							$derived['city'] = $place['city'];
+							$derived['state'] = $place['state'];
+							$derived['zip'] = $place['zip'];
+						}
+						?>
+						<div class="row text-sharp pt-3">
+							<div class="col-md-2 text-start icon-col">
+								<i class="fal fa-location-smile fa-fw fa-2x pt-1"></i>
+							</div>
+							<div class="col-md-8 align-items-center location-info">
+								<div class="location-name fun-font info-fontsize"><?=$derived['venue']?></div>
+								<? if (!empty($derived['address'])) { ?>
 									<p class="lh-sm w-100 mb-0">
-										<a href="https://www.google.com/maps/dir/?api=1&destination=<?=urlencode($place['address'])?>,+<?=urlencode($place['city'])?>,+<?=urlencode($place['state'])?>+<?=urlencode($place['zip'])?>,+USA" class="text-decoration-none text-sharp">
-											<?=$place['address']?><br>
-											<?=$place['city']?>, <?=$place['state']?> <?=$place['zip']?>
+										<a href="https://www.google.com/maps/dir/?api=1&destination=<?=urlencode($derived['address'])?>,+<?=urlencode($derived['city'])?>,+<?=urlencode($derived['state'])?>+<?=urlencode($derived['zip'])?>,+USA" class="text-decoration-none text-sharp">
+											<?=$derived['address']?><br>
+											<?=$derived['city']?>, <?=$derived['state']?> <?=$derived['zip']?>
 										</a>
 									</p>
-									<div class="location-tip mt-3"> Special instructions for this venue: <span>The door looks like a wearhouse door. Knock on it and someone will let you in.</span></div>
-								</div>
+								<? } ?>
+								<div class="location-tip mt-3"> Special instructions for this venue: <span>The door looks like a wearhouse door. Knock on it and someone will let you in.</span></div>
+							</div>
+							<div class="col-md-2 text-end">
+								<? if ($place['venueID'] > 0) {
+									if (is_null($place['venue_image'])) $place['venue_image'] = '/assets/images/placeholder.jpg';
+									else $place['venue_image'] = 'https://cdn.filestackcontent.com/resize=w:50/' . $place['venue_image'];
+									?>
+									<a href="profile.php?id=<?=$place['venueID']?>"><img src="<?=$place['venue_image']?>" class="profile-icon" width="50" height="50"></a>
+								<? } ?>
+							</div>
+							<? if (!empty($derived['address'])) { ?>
 								<div class="col-md-12">
 									<div class="location-map mt-3">
-										<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d377636.5758638698!2d-71.36014211344579!3d42.31510366846641!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89e37a76a6e59fb3%3A0x681acded12b72b1!2sJacques&#39;%20Cabaret!5e0!3m2!1sen!2sro!4v1644918294391!5m2!1sen!2sro" width="100%" height="250" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+										<iframe src="https://www.google.com/maps/embed/v1/place?key=<?=GOOGLE_MAPS_API_KEY?>&q=<?=urlencode($derived['address'])?>,+<?=urlencode($derived['city'])?>,+<?=urlencode($derived['state'])?>+<?=urlencode($derived['zip'])?>,+USA" width="100%" height="250" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
 									</div>
 								</div>
+							<? } ?>
+						</div>
+						<?
+						if (!empty($place['contact_name'])) { ?>
+					 		<div class="d-flex text-sharp pt-3">
+								<i class="fal fa-user fa-fw fa-2x me-2 pt-1"></i>
+								<p class="pb-3 mb-0 lh-sm w-100 text-end">
+									<?=$place['contact_name']?>
+								</p>
 							</div>
 							<?
 						}
-						?>
-
-				 		<div class="d-flex text-sharp pt-3">
-							<i class="fal fa-user fa-fw fa-2x me-2 pt-1"></i>
-							<p class="pb-3 mb-0 lh-sm w-100 text-end">
-								<a href="profile.php?id=<?=$place['userID']?>">@<?=$place['handle']?></a>
-							</p>
-						</div>
-						<?
-
 						if (!empty($place['phone'])) { ?>
 					 		<div class="d-flex text-sharp pt-3">
 								<i class="fal fa-phone fa-fw fa-2x me-2 pt-1"></i>
@@ -271,16 +297,6 @@ include('header.php'); ?>
 							</div>
 							<?
 						}
-						if (!empty($place['url'])) { ?>
-					 		<div class="d-flex text-sharp pt-3">
-								<i class="fal fa-spider-web fa-fw fa-2x me-2 pt-1"></i>
-								<p class="pb-3 mb-0 lh-sm w-100 text-end">
-									<a href="<?=$place['url']?>" class="text-decoration-none text-sharp"><?=$place['url']?></a>
-								</p>
-							</div>
-							<?
-						}
-
 						?>
 
 						<div class="row d-flex justify-content-center align-items-center mt-3">
@@ -309,22 +325,74 @@ include('header.php'); ?>
 							?>
 						</div>
 
-						<div class="row d-flex justify-content-center align-items-center mt-5">
-							<?php
-							$query = "SELECT s.icon, s.link, ps.value
-									FROM places_socials ps
-									JOIN socials s ON ps.socialID = s.id AND ps.placeID = " . $place['id'] . "
-							";
-							$result = mysqli_query($link, $query);
-							if ($result && mysqli_num_rows($result) > 0) {
-								while ($row = mysqli_fetch_assoc($result)) {
-									?>
-									<div class="col-auto"><a href="<?=$row['link']?><?=$row['value']?>"><i class="<?=$row['icon']?> fa-2x"></i></a></div>
-									<?
-								}
+						<?
+						# url
+						if (!empty($place['url'])) { ?>
+					 		<div class="row text-sharp pt-3">
+								<div class="col-md-2 text-start icon-col">
+									<i class="fal fa-spider-web fa-fw fa-2x me-2 pt-1"></i>
+								</div>
+								<div class="col-md-10">
+									<div class="location-tip mt-2">
+										<a href="<?=$place['url']?>" class="text-decoration-none text-sharp"><?=$place['url']?></a>
+									</div>
+								</div>
+							</div>
+							<?
+						}
+
+						# socials
+						$query = "SELECT s.icon, s.preface, s.link, ps.value
+								FROM places_socials ps
+								JOIN socials s ON ps.socialID = s.id
+								WHERE ps.placeID = " . $place['id'] . "
+						";
+						$result = mysqli_query($link, $query);
+						if ($result && mysqli_num_rows($result) > 0) {
+							while ($row = mysqli_fetch_assoc($result)) {
+								?>
+						 		<div class="row text-sharp pt-3">
+									<div class="col-md-2 text-start icon-col">
+										<i class="<?=$row['icon']?> fa-fw fa-2x me-2 pt-1"></i>
+									</div>
+									<div class="col-md-10">
+										<div class="location-tip mt-2">
+											<a href="<?=$row['link']?><?=$row['value']?>" class="text-decoration-none text-sharp"><?=$row['preface']?><?=$row['value']?></a>
+										</div>
+									</div>
+								</div>
+								<?
 							}
-							?>
-						</div>
+						}
+
+						# collaborators
+						$query = "SELECT c.collaboratorID, ui.handle as user_image, u.name, u.handle
+								FROM places_collaborators c
+								JOIN users u ON u.id = c.collaboratorID
+								LEFT OUTER JOIN users_images ui ON ui.id = (SELECT id FROM users_images WHERE userID = c.collaboratorID ORDER BY seqno DESC LIMIT 1)
+								WHERE c.placeID = " . $place['id'] . "
+						";
+						$result = mysqli_query($link, $query);
+						if ($result && mysqli_num_rows($result) > 0) {
+							while ($row = mysqli_fetch_assoc($result)) {
+								?>
+						 		<div class="row text-sharp pt-3">
+									<div class="col-md-2 text-start icon-col">
+										<?
+										if (is_null($row['user_image'])) $row['user_image'] = '/assets/images/placeholder.jpg';
+										else $row['user_image'] = 'https://cdn.filestackcontent.com/resize=w:50/' . $row['user_image'];
+										?>
+										<a href="profile.php?id=<?=$row['collaboratorID']?>"><img src="<?=$row['user_image']?>" class="profile-icon" width="50" height="50"></a>
+									</div>
+									<div class="col-md-10">
+										<p class="pb-0 mb-0 lh-sm w-100 fun-font info-fontsize"><?=$row['name']?></p>
+										<p class="lh-sm w-100 text-sharp mb-0"><a href="profile.php?id=<?=$row['collaboratorID']?>">@<?=$row['handle']?></a></p>
+									</div>
+								</div>
+								<?
+							}
+						}
+						?>
 					</div>
 				</main>
 
