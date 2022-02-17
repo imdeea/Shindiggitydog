@@ -1,3 +1,11 @@
+a.dark-link{
+	color: #000;
+	text-decoration: none;
+}
+a.dark-link:hover,
+a.dark-link:active{
+	color: red;
+}
 .event-image-holder {
 	position: relative;
 }
@@ -6,9 +14,6 @@
 	top: 1rem;
 	right: 1rem;
 	color: #fff;
-}
-.location-info a{
-	color: #000;
 }
 .icon-col i {
 	font-size: 2.5rem;
@@ -26,6 +31,9 @@
 .info-fontsize, .event-dates b{
 	font-size: 1.7rem;
 	font-weight: 600;
+}
+.event-dates b{
+	line-height: 1;
 }
 .icon-col i{
 	margin-right: 0!important;

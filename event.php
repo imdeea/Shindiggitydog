@@ -188,7 +188,7 @@ include('header.php'); ?>
 								<div class="col-md-10">
 									<?php if (!is_null($place['ticket_price_low']) && $place['ticket_needed'] != "N") { ?>
 
-												<p class="pb-0 mb-0 lh-sm w-100 fun-font info-fontsize">
+												<p class="pb-0 mb-0 lh-1 w-100 fun-font info-fontsize">
 													<?
 													if ($place['ticket_price_low'] != $place['ticket_price_high']) {
 														 ?>$<?=number_format($place['ticket_price_low'], 2)?> &ndash; $<?=number_format($place['ticket_price_high'], 2)?><?
@@ -242,16 +242,16 @@ include('header.php'); ?>
 								<i class="fal fa-location-smile fa-fw fa-2x pt-1"></i>
 							</div>
 							<div class="col-md-8 align-items-center location-info">
-								<div class="location-name fun-font info-fontsize"><?=$derived['venue']?></div>
+								<div class="location-name fun-font info-fontsize lh-1"><?=$derived['venue']?></div>
 								<? if (!empty($derived['address'])) { ?>
 									<p class="lh-sm w-100 mb-0">
-										<a href="https://www.google.com/maps/dir/?api=1&destination=<?=urlencode($derived['address'])?>,+<?=urlencode($derived['city'])?>,+<?=urlencode($derived['state'])?>+<?=urlencode($derived['zip'])?>,+USA" class="text-decoration-none text-sharp">
+										<a href="https://www.google.com/maps/dir/?api=1&destination=<?=urlencode($derived['address'])?>,+<?=urlencode($derived['city'])?>,+<?=urlencode($derived['state'])?>+<?=urlencode($derived['zip'])?>,+USA" class="text-decoration-none text-sharp dark-link">
 											<?=$derived['address']?><br>
 											<?=$derived['city']?>, <?=$derived['state']?> <?=$derived['zip']?>
 										</a>
 									</p>
 								<? } ?>
-								<div class="location-tip mt-3"> Special instructions for this venue: <span>The door looks like a wearhouse door. Knock on it and someone will let you in.</span></div>
+								<div class="location-tip mt-3"> Special instructions for this venue: <span>The door looks like a warehouse door. Knock on it and someone will let you in.</span></div>
 							</div>
 							<div class="col-md-2 text-end">
 								<? if ($place['venueID'] > 0) {
@@ -283,7 +283,7 @@ include('header.php'); ?>
 					 		<div class="d-flex text-sharp pt-3">
 								<i class="fal fa-phone fa-fw fa-2x me-2 pt-1"></i>
 								<p class="pb-3 mb-0 lh-sm w-100 text-end">
-									<a href="tel:+1<?=$place['phone']?>" class="text-decoration-none text-sharp"><?=mask_phone($place['phone'])?></a>
+									<a href="tel:+1<?=$place['phone']?>" class="text-decoration-none text-sharp dark-link"><?=mask_phone($place['phone'])?></a>
 								</p>
 							</div>
 							<?
@@ -292,7 +292,7 @@ include('header.php'); ?>
 					 		<div class="d-flex text-sharp pt-3">
 								<i class="fal fa-envelope fa-fw fa-2x me-2 pt-1"></i>
 								<p class="pb-3 mb-0 lh-sm w-100 text-end">
-									<a href="mailto:<?=$place['email']?>" class="text-decoration-none text-sharp"><?=$place['email']?></a>
+									<a href="mailto:<?=$place['email']?>" class="text-decoration-none text-sharp dark-link"><?=$place['email']?></a>
 								</p>
 							</div>
 							<?
@@ -334,7 +334,7 @@ include('header.php'); ?>
 								</div>
 								<div class="col-md-10">
 									<div class="location-tip mt-2">
-										<a href="<?=$place['url']?>" class="text-decoration-none text-sharp"><?=$place['url']?></a>
+										<a href="<?=$place['url']?>" class="text-decoration-none text-sharp dark-link"><?=$place['url']?></a>
 									</div>
 								</div>
 							</div>
@@ -357,7 +357,7 @@ include('header.php'); ?>
 									</div>
 									<div class="col-md-10">
 										<div class="location-tip mt-2">
-											<a href="<?=$row['link']?><?=$row['value']?>" class="text-decoration-none text-sharp"><?=$row['preface']?><?=$row['value']?></a>
+											<a href="<?=$row['link']?><?=$row['value']?>" class="text-decoration-none text-sharp dark-link"><?=$row['preface']?><?=$row['value']?></a>
 										</div>
 									</div>
 								</div>
@@ -373,7 +373,9 @@ include('header.php'); ?>
 								WHERE c.placeID = " . $place['id'] . "
 						";
 						$result = mysqli_query($link, $query);
-						if ($result && mysqli_num_rows($result) > 0) {
+						if ($result && mysqli_num_rows($result) > 0) {?>
+							<h3 class="fun-font info-fontsize mt-5">Collaborators</h3>
+							<?php
 							while ($row = mysqli_fetch_assoc($result)) {
 								?>
 						 		<div class="row text-sharp pt-3">
@@ -385,8 +387,8 @@ include('header.php'); ?>
 										<a href="profile.php?id=<?=$row['collaboratorID']?>"><img src="<?=$row['user_image']?>" class="profile-icon" width="50" height="50"></a>
 									</div>
 									<div class="col-md-10">
-										<p class="pb-0 mb-0 lh-sm w-100 fun-font info-fontsize"><?=$row['name']?></p>
-										<p class="lh-sm w-100 text-sharp mb-0"><a href="profile.php?id=<?=$row['collaboratorID']?>">@<?=$row['handle']?></a></p>
+										<p class="lh-1 pb-0 mb-0 w-100 fun-font info-fontsize"><?=$row['name']?></p>
+										<p class="lh-1 w-100 text-sharp mb-0"><a href="profile.php?id=<?=$row['collaboratorID']?>" class="dark-link">@<?=$row['handle']?></a></p>
 									</div>
 								</div>
 								<?
