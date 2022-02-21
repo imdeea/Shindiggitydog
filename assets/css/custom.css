@@ -356,12 +356,20 @@ small .btn-sm { line-height: 1; }
 	border-radius: 20px;
 	background-color: #E7E8EA;
 	border: none;
-	width: 400px;
 	padding-left: 33px;
 }
-.search-container { position: relative; }
+.search-container { position: relative; width: 100%;}
 .search-container span {position: absolute; left: 9px; top: 7px; }
-
+.search-form-element{
+	flex: 0 1 400px;
+}
+@media screen and (max-width: 767px){
+	.search-container {
+		position: relative;
+		width: 90%;
+		margin: 0 auto;
+	}
+}
 /* subnav */
 .sub-nav li.nav-item { width: initial; text-align: left; margin-bottom: 4px; }
 
