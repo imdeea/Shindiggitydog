@@ -8,6 +8,17 @@
 		<script>
 			$(function () {
 	            $('[data-bs-toggle="tooltip"]').tooltip();
+
+				$(".placecard-link").on("mouseenter", function(){
+					toggleActiveClass($(this));
+				});
+				$(".placecard-link").on("mouseleave", function(){
+					toggleActiveClass($(this));
+				});
+
+				function toggleActiveClass($el){
+					$el.parent().toggleClass('active-card');
+				}
 	        });
 		</script>
 	</body>

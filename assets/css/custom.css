@@ -398,7 +398,7 @@ small .btn-sm { line-height: 1; }
 	text-decoration: none;
 	color: #fff;
 }
-.placecard-title:hover, .placecard-title:active { color: red; }
+.active-card .placecard-title { color: red; }
 .placecard-image-holder, .placecard-info-holder {
 	position: relative;
 }
