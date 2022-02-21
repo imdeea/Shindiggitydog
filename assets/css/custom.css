@@ -1,3 +1,10 @@
+#placeImages{
+	z-index: 0;
+}
+.event-image-holder {
+	min-height: 300px;
+	height: 100%;
+}
 a.dark-link{
 	color: #000;
 	text-decoration: none;
@@ -14,6 +21,7 @@ a.dark-link:active{
 	top: 1rem;
 	right: 1rem;
 	color: #fff;
+	z-index: 1;
 }
 .icon-col i {
 	font-size: 2.5rem;
@@ -28,8 +36,12 @@ a.dark-link:active{
 .event-dates b{
 	font-family: katarine-web,sans-serif;
 }
-.info-fontsize, .event-dates b{
+.info-fontsize, .event-dates b {
 	font-size: 1.7rem;
+	font-weight: 600;
+}
+.handle-fontsize {
+	font-size: 1.2rem;
 	font-weight: 600;
 }
 .event-dates b{
@@ -44,9 +56,12 @@ a.dark-link:active{
 	font-weight: 100;
 	text-transform: uppercase;
 	border-radius: 100px;
-	padding: 1px 15px;
+	padding: 2px 15px 1px;
 	margin-right: 3px;
+
 }
+.btn.categories:hover, .btn.categories:active { color: #ffe4b3; }
+.btn.categories.active { background-color: #ffedcc; color: #000; }
 .form-control::placeholder {
 	color: #d1d6db;
 }
@@ -94,6 +109,7 @@ a.dark-link:active{
 	font-weight: 600;
 	font-style: normal;
 	font-size: 2rem;
+	text-transform: uppercase;
 
 }
 h6 { color:#ccc; }
@@ -186,6 +202,7 @@ h6 { color:#ccc; }
 .form-range {
 	height: 2rem;
 }
+/*
 .category-title {
 	background: #de713d;
 	color: #fff;
@@ -215,10 +232,10 @@ h6 { color:#ccc; }
 	position: absolute;
 	color: #ffffff;
 }
-
 .card.preferred { border: 4px solid #e382c0; }
 .card-body { background-color: #fff; }
 .preferred .card-body { background-color: #faeaf4; }
+*/
 
 .mt-0 { margin-top:0; }
 .mt-10 { margin-top:10px; }
@@ -246,7 +263,8 @@ a.nav-link { padding-top:0; padding-bottom:0; }
     display: block;
 }
 
-.fa-1-5x { font-size: 1.5em; }
+.fa-1p5x { font-size: 1.5em; }
+.fa-p6x { font-size: .6em; }
 
 body {
 	padding-bottom: 130px;
@@ -313,11 +331,6 @@ small .btn-sm { line-height: 1; }
     background-image: none;
     background-color: #fffdf5;
 }
-
-.text-warning {
-    color: #CC0 !important;
-    text-decoration: none;
-}
 .btn-warning:active, .btn-warning:focus, .btn-warning:hover {
 	text-decoration: blink;
 }
@@ -330,10 +343,27 @@ small .btn-sm { line-height: 1; }
     margin-top: 1.25rem;
 }
 
+/* nav */
+.navbar-brand {
+	font-family: 'katarine-web';
+	font-weight: 700;
+	font-size: 2rem;
+}
+.right-navigation a.btn { padding: 0.375rem; font-size: 1.5em; }
+
+/* search */
+.search {
+	border-radius: 20px;
+	background-color: #E7E8EA;
+	border: none;
+	width: 400px;
+	padding-left: 33px;
+}
+.search-container { position: relative; }
+.search-container span {position: absolute; left: 9px; top: 7px; }
 
 /* subnav */
-.sub-nav li.nav-item { width: initial; padding-right:10px; }
-
+.sub-nav li.nav-item { width: initial; text-align: left; margin-bottom: 4px; }
 
 /* checkboxes */
 .btn-group .btn-outline-primary {
@@ -352,4 +382,59 @@ small .btn-sm { line-height: 1; }
 .btn-group label { font-size:.9rem; }
 
 /* profile icon */
-.profile-icon { border-radius: 50%; }
+.profile-icon { width: 50px; height: 50px; border-radius: 50%; }
+
+/* ratios */
+.ratio-3x4 {
+    --bs-aspect-ratio: calc(4 / 3 * 100%);
+}
+
+/* placecards */
+.placecard-title {
+	font-size: 1.5rem;
+	text-transform: uppercase;
+	font-weight: 600;
+	display: block;
+	text-decoration: none;
+	color: #fff;
+}
+.placecard-title:hover, .placecard-title:active { color: red; }
+.placecard-image-holder, .placecard-info-holder {
+	position: relative;
+}
+.placecard-info-container {
+	position: absolute;
+	bottom: 2rem;
+	left: 2rem;
+	color: #fff;
+}
+.placecard-info-container .btn.categories {
+	background-color: rgb(255,255,255,.4);
+}
+.placecard-image-holder a {
+	position: absolute;
+	bottom: 2rem;
+	right: 2rem;
+	color: #fff;
+}
+
+/* small screens */
+@media (max-width: 600px) {
+	.right-navigation a.btn { padding: 0.1rem; font-size: 1em; }
+	.navbar-brand { font-size: 1.3rem; }
+
+	main {
+		font-size: calc(3vw);
+		padding-left: 0.5em!important;
+		padding-right: 0.5em!important;
+	}
+
+	.icon-col i { font-size: 1.5rem; }
+	.info-fontsize, .event-dates b { font-size: 1rem; }
+	.btn.categories { padding: 2px 10px 1px; margin-right: 0px; font-size: .75rem; }
+	.profile-icon { width: 32px; height: 32px; }
+	.pt-3 { padding-top: 0.75rem!important; }
+
+	.placecard-info-container { bottom: 1rem; left: 1rem; }
+	.placecard-image-holder a { bottom: 1rem; right: 1rem; }
+}
