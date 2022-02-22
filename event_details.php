@@ -20,16 +20,16 @@ if (@$_POST["submitted"] == "yes") {
 	# update event
 	$query = "UPDATE places SET
 			ticket_needed = '" . addslashes(trim(@$item['ticket_needed'])) . "',
-			ticket_price_low = " . addslashes(trim($item['ticket_price_low'])) . ",
-			ticket_price_high = " . addslashes(trim($item['ticket_price_high'])) . ",
+			ticket_price_low = " . addslashes(trim(str_replace(',', '', $item['ticket_price_low']))) . ",
+			ticket_price_high = " . addslashes(trim(str_replace(',', '', $item['ticket_price_high']))) . ",
 			ticket_url = '" . addslashes(trim($item['ticket_url'])) . "',
 			capacity = 0" . addslashes(trim($item['capacity'])) . ",
 			duration = '" . addslashes(trim($item['duration'])) . "',
-			blurb = '" . addslashes(trim($item['blurb'])) . "'
+			blurb = '" . addslashes(trim($item['blurb'])) . "',
+			notes = '" . addslashes(trim($item['notes'])) . "'
 			WHERE id = " . $item['id'] . "
 			  AND userID = " . $_COOKIE['id'] . "
 	";
-
 	mysqli_query($link, $query);
 
 	# update category joins
@@ -80,7 +80,7 @@ if (@$_POST["submitted"] == "yes") {
 
 include('header.php'); ?>
 
-	<section class="py-1 mb-2 text-center page_header btn-warning">
+	<section class="py-1 mb-2 text-center page_header">
 	    <div class="container">
 		   <div class="row">
 			<div class="col-lg-6 col-md-8 mx-auto">
@@ -116,6 +116,18 @@ include('header.php'); ?>
 						<form class="needs-validation" novalidate method="POST" action="?id=<?=$item['id']?>">
 							<div class="row">
 
+								<div class="col-md-12 mb-3">
+									<label for="duration" class="form-label">Description</label>
+									<div class="input-group has-validation">
+										<textarea class="form-control" id="blurb" name="blurb" rows="10" placeholder="Event description"><?=$item['blurb']?></textarea>
+									</div>
+								</div>
+								<div class="col-md-12 mb-3">
+									<label for="duration" class="form-label">Special Instructions / Notes</label>
+									<div class="input-group has-validation">
+										<textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Event description"><?=$item['notes']?></textarea>
+									</div>
+								</div>
 								<div class="col-md-6 mb-3">
 									<label for="catID" class="form-label">Ticket Needed?</label>
 									<div class="input-group has-validation">
@@ -157,7 +169,7 @@ include('header.php'); ?>
 									<label for="capacity" class="form-label">Capacity</label>
 									<div class="input-group has-validation">
 										<span class="input-group-text "><i class="fal fa-hashtag"></i></span>
-										<input type="number" class="form-control" id="capacity" name="capacity" placeholder="250" value="<?=$item['capacity']?>" autocomplete="off" min="1" max="10000" step="1">
+										<input type="number" class="form-control" id="capacity" name="capacity" placeholder="250" value="<?=$item['capacity']?>" autocomplete="off" min="0" max="10000" step="1">
 									</div>
 								</div>
 
@@ -168,12 +180,6 @@ include('header.php'); ?>
 										<input type="text" class="form-control" id="duration" name="duration" placeholder="2 hours 30 minutes" value="<?=$item['duration']?>" autocomplete="off">
 									</div>
 								</div>
-								<div class="col-md-6 mb-3">
-									<label for="duration" class="form-label">Event Bio</label>
-									<div class="input-group has-validation">
-										<textarea class="form-control" id="blurb" name="blurb" placeholder="Event description"><?=$item['blurb']?></textarea>
-									</div>
-								</div>
 
 							</div>
 
@@ -182,31 +188,27 @@ include('header.php'); ?>
 									<label for="catID" class="form-label">Genre</label>
 									<div class="input-group has-validation">
 										<div class="btn-group" role="group" aria-label="Genre">
+											<?
+											$query = "SELECT c.id, c.descr, c.icon, j.id as preselected
+													FROM categories c
+													LEFT OUTER JOIN places_categories j ON c.id = j.catID AND j.placeID = " . $item['id'] . "
+													ORDER BY c.descr
+											";
+											$i = 0;
+											$result = mysqli_query($link, $query);
+											if ($result && mysqli_num_rows($result) > 0) {
 
-										<?
-										$query = "SELECT c.id, c.descr, c.icon, j.id as preselected
-												FROM categories c
-												LEFT OUTER JOIN places_categories j ON c.id = j.catID AND j.placeID = " . $item['id'] . "
-												ORDER BY c.descr
-										";
-										$i = 0;
-										$result = mysqli_query($link, $query);
-										if ($result && mysqli_num_rows($result) > 0) {
-
-											while ($row = mysqli_fetch_assoc($result)) {
-												$i++;
-												?>
-												<input type="checkbox" name="catIDs[]" onchange="checkCheckboxMax(this)" value="<?=$row['id']?>"<? if (!is_null($row['preselected'])) echo(' checked'); ?> class="btn-check" id="btncheck<?=$i?>" autocomplete="off">
-												<label class="btn btn-outline-primary" for="btncheck<?=$i?>"><?=$row['icon']?> &nbsp; <?=$row['descr']?></label>
-												<?
+												while ($row = mysqli_fetch_assoc($result)) {
+													$i++;
+													?>
+													<input type="checkbox" name="catIDs[]" onchange="checkCheckboxMax(this)" value="<?=$row['id']?>"<? if (!is_null($row['preselected'])) echo(' checked'); ?> class="btn-check" id="btncheck<?=$i?>" autocomplete="off">
+													<label class="btn btn-outline-primary" for="btncheck<?=$i?>"><?=$row['icon']?> &nbsp; <?=$row['descr']?></label>
+													<?
+												}
 											}
-										}
-										?>
-
+											?>
 										</div>
-										<div class="invalid-feedback">
-										   Select a maximum of 3 genres
-									   </div>
+										<div class="invalid-feedback"> Select a maximum of 3 genres </div>
 									</div>
 								</div>
 
