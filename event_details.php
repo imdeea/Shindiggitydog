@@ -279,7 +279,15 @@ include('header.php'); ?>
 			</div>
 		</main>
 	</div>
-
+	<style>
+	.btn-group, .btn-group-vertical {
+		display: flex;
+		flex-wrap: wrap;
+	}
+	.btn-group>.btn{
+		margin-top: 5px;
+	}
+	<style>
 	<script src="/assets/third-party/input-masking/inputmask.min.js"></script>
 	<script>
 	(function () {
