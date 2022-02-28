@@ -1,3 +1,11 @@
+@media screen(max-width:767px){
+	#search {
+		position: absolute;
+		left: 50%;
+		transform: translateX(-50%);
+		width: 400px;
+	}
+}
 #placeImages{
 	z-index: 0;
 }
