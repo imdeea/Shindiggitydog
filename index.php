@@ -236,11 +236,55 @@ myCollapsible.addEventListener('hide.bs.collapse', function () {
   	document.querySelector("body").classList.toggle("filters-shown");
 });
 
+
 </script>
 
 <?
 $onready_more = <<<EOT
+
+$.scrollify({
+  section: ".event-card",
+  interstitialSection : "#filters-wrapper",
+  updateHash: false,
+  touchScroll:true,
+  setHeights: false,
+  easing: "easeOutExpo",
+  scrollSpeed: 500,
+});
+
+function debounce(func, wait, immediate) {
+  var timeout;
+  return function() {
+	var context = this,
+	  args = arguments;
+	var later = function() {
+	  timeout = null;
+	  if (!immediate) {
+		func.apply(context, args);
+	  }
+	};
+	var callNow = immediate && !timeout;
+	clearTimeout(timeout);
+	timeout = setTimeout(later, wait);
+	if (callNow) {
+	  func.apply(context, args);
+	}
+  };
+};
+
+$(window).resize(debounce(function() {
+  var width = $(this).width();
+  console.log(width)
+  if(width < 768) {
+	$.scrollify.enable();
+  } else {
+	$.scrollify.disable();
+  }
+}, 50));
+
+$(window).trigger('resize');
      $("#city_search").autocomplete({
+		appendTo: '#filters',
 		source: 'cities_search.php',
 		select: function(event, ui) {
 			var selectedObj = ui.item;

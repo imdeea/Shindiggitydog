@@ -1,5 +1,5 @@
 
-<div class="col">
+<div class="col event-card" id="<?=$row['venueID']?>">
 	<div class="ratio ratio-3x4" style="background-image:url('https://cdn.filestackcontent.com/resize=w:<?=isset($small_card)?'380':'650'?>/<?=$row['handle']?>'); background-size: cover; background-position: center center;">
 		<a href="event.php?id=<?=$row['id']?>" class="placecard-link"></a>
 		<div class="placecard-info-holder">
