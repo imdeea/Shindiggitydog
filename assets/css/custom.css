@@ -1,6 +1,28 @@
+#filters-wrapper{
+	background: #fefaf1;
+	height: auto;
+}
+.filters-shown #filters-wrapper{
+	height: 100vh;
+}
+#filters{
+	background: #fefaf1;
+}
+#filters.collapsing {
+    -webkit-transition: none;
+    transition: none;
+    display: none;
+}
+.btn-check:focus+.btn, .btn:focus {
+	outline: 0;
+	box-shadow: none;
+}
 @media screen and (max-width: 990px){
 	#filters {
-		min-height: calc(100vh - 100px);
+		height: calc(100vh - 100px);
+	}
+	#filters.show{
+		height: calc(100vh - 38px);
 	}
 }
 @media screen and (min-width:767px){

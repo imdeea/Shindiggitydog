@@ -5,21 +5,11 @@
 		<? } ?>
 
 		<script src="/assets/js/bootstrap.bundle.min.js"></script>
+		<script src="/rxs.js"></script>
 		<script>
-			$(function () {
-	            $('[data-bs-toggle="tooltip"]').tooltip();
-
-				$(".placecard-link").on("mouseenter", function(){
-					toggleActiveClass($(this));
-				});
-				$(".placecard-link").on("mouseleave", function(){
-					toggleActiveClass($(this));
-				});
-
-				function toggleActiveClass($el){
-					$el.parent().toggleClass('active-card');
-				}
-	        });
+		$(function () {
+			<?=@$onready_more?>
+		});
 		</script>
 	</body>
 </html>
