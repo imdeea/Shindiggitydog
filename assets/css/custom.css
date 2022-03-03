@@ -1,4 +1,9 @@
-@media screen(max-width:767px){
+@media screen and (max-width: 990px){
+	#filters {
+		min-height: calc(100vh - 100px);
+	}
+}
+@media screen and (min-width:767px){
 	#search {
 		position: absolute;
 		left: 50%;
@@ -441,6 +446,7 @@ small .btn-sm { line-height: 1; }
 
 /* profile icon */
 .profile-icon { width: 50px; height: 50px; border-radius: 50%; }
+.profile-icon-large { width: 150px; height: 150px;  }
 
 /* ratios */
 .ratio-3x4 {
@@ -472,14 +478,38 @@ small .btn-sm { line-height: 1; }
 	background-color: rgb(255, 255, 255,.4);
 	margin-bottom: 0;
 }
-.placecard-image-holder a {
-	position: absolute;
-	bottom: 0;
-	right: 0;
-	color: rgb(255, 255, 255, 1);
-}
 .placecard-details {
     margin-bottom: 5px;
+}
+.placecard-image-holder a.favorite {
+    position: absolute;
+    bottom: 0;
+    right: 11px;
+    color: rgb(255, 255, 255, 1);
+}
+.placecard-image-holder a.venue {
+    position: absolute;
+    bottom: 3.5em;
+    right: 0;
+    color: rgb(255, 255, 255, 1);
+}
+.placecard-image-holder a.venue .profile-icon {
+	border: 3px solid white;
+}
+.placecard-image-holder .follow-holder {
+	position: absolute;
+	right: 15px;
+	bottom: 2.4em;
+	color: rgb(0,0,0,.7);
+}
+.placecard-image-holder .back {
+    color: crimson;
+}
+.placecard-image-holder a.follow {
+	position: absolute;
+	right: 0;
+	top: 0;
+	color: white;
 }
 
 .container.content { padding-top: 1rem!important; }
@@ -493,8 +523,6 @@ small .btn-sm { line-height: 1; }
 
 /* small screens */
 @media screen and (max-width: 991px){
-
-	.container.content { padding-top: 0!important; }
 
 	main {
 		font-size: calc(3vw);
@@ -510,7 +538,8 @@ small .btn-sm { line-height: 1; }
 	.page_header h1 { padding-left: .25em; font-size: 1.5em; }
 	.placecard-title { font-size: 1.25em; }
 	.placecard-details { margin-bottom: 0; font-size: .85em; }
-	.profile-icon { width: 32px; height: 32px; }
+	.profile-icon {  }
+	.profile-icon-large { width: 100px; height: 100px;  }
 	.pt-3 { padding-top: 0.75em!important; }
 	.ratio-3x4 { padding: 1em; }
 	.right-navigation a.btn { padding: 0.1em; font-size: 1em; }
