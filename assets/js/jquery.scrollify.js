@@ -108,7 +108,7 @@ if touchScroll is false - update index
       if(firstLoad===true) {
         firstLoad = false;
         settings.afterRender();
-      }
+        }
       if(callbacks) {
         if( typeof settings.before == 'function' && settings.before(index,elements) === false ){
           return true;
@@ -306,6 +306,7 @@ if touchScroll is false - update index
 
 
         if(locked) {
+            e.preventDefault();
           return false;
         }
         if(delta<0) {
@@ -378,7 +379,7 @@ if touchScroll is false - update index
         } else {
           $("body").css({"overflow":"hidden"});
         }
-        window.addEventListener(wheelEvent, manualScroll.wheelHandler, { passive: false });
+        window.addEventListener(wheelEvent, manualScroll.wheelHandler, { passive: false, capture: true  });
         //$(document).bind(wheelEvent,manualScroll.wheelHandler);
         $window.on('keydown', manualScroll.keyHandler);
       }
@@ -397,6 +398,7 @@ if touchScroll is false - update index
         "timeStamp" : new Date().getTime()
       },
       touchHandler: function(event) {
+        
         if(disabled===true) {
           return true;
         } else if(settings.standardScrollElements) {
@@ -423,6 +425,7 @@ if touchScroll is false - update index
                 swipeScroll.touches.touchmove.x = touch.pageX;
                 if(swipeScroll.touches.touchstart.y!==swipeScroll.touches.touchmove.y && (Math.abs(swipeScroll.touches.touchstart.y-swipeScroll.touches.touchmove.y)>Math.abs(swipeScroll.touches.touchstart.x-swipeScroll.touches.touchmove.x))) {
                   //if(!overflow[index]) {
+                  if(event.cancelable)
                     event.preventDefault();
                   //}
                   swipeScroll.touches.direction = "y";
@@ -547,7 +550,7 @@ if touchScroll is false - update index
       },
       handleResize:function() {
         //callbacks, scroll
-        util.refresh(true,false);
+        util.refresh(true,true);
       },
       handleOrientation:function() {
         //callbacks, scroll

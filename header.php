@@ -18,7 +18,7 @@
 	</head>
 	<body>
 		<? if (!isset($nonav)) { ?>
-			<nav class="navbar navbar-expand-lg navbar-light">
+			<nav class="navbar navbar-expand-lg navbar-light sticky-top">
 				<div class="container">
 
 					<a class="navbar-brand order-md-1" href="/"><span class="d-inline-block">SHINDIG</span></a>

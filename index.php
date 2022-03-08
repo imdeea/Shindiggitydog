@@ -2,6 +2,7 @@
 ini_set('display_errors',1);
 error_reporting(E_ALL);
 
+require_once("security.php");
 require_once("config.php");
 include('rxs.php');
 
@@ -35,17 +36,21 @@ if (@$_POST["submitted"] == "yes") {
 		$age = sanitize_int($_POST['age'], 0);
 		if (!in_array($age, array(28, 29, 30))) unset($age);
 	}
+
+	# genres
+	if (isset($_POST['catIDs'])) {
+		foreach ($_POST['catIDs'] as $catID) if (sanitize_int($catID, 0)) $catIDs[] = sanitize_int($catID, 0);
+	}
 }
 
 $top_nav = 'discover';
 include('header.php'); ?>
 
-	<div class="container content">
+	<div class="container">
 		<div class="row">
-
 			<div class="col-lg-10 order-2 order-lg-1">
 				<div class="container px-0">
-					<div class="row row-cols-md-2 row-cols-1 g-3">
+					<div id="event-cards" class="row row-cols-md-2 row-cols-1 g-lg-3">
 						<?
 						$query = "SELECT p.id, p.name, p.neighborhood, p.venueID, f.id as favorite, o.id as follow, v.profile_pic as venue_image,
 									GROUP_CONCAT(DISTINCT t.descr SEPARATOR '</button> &nbsp;<button class=\"btn categories\">') as genres,
@@ -54,6 +59,8 @@ include('header.php'); ?>
 						";
 						# age restriction
 						if (isset($age)) $query .= "JOIN places_details d ON p.id = d.placeID AND d.detailID = " . $age . " ";
+						# genres
+						if (isset($catIDs)) $query .= "JOIN places_categories c ON p.id = c.placeID AND c.catID IN (" . implode(',', $catIDs) . ") ";
 						$query .= "LEFT OUTER JOIN favorites f ON f.userID = " . $_COOKIE['id'] . " AND f.placeID = p.id
 								 LEFT OUTER JOIN places_categories j ON p.id = j.placeID
 								 LEFT OUTER JOIN categories t ON j.catID = t.id
@@ -71,6 +78,7 @@ include('header.php'); ?>
 						$query .= "GROUP BY p.id
 								 -- ORDER BY ??
 						";
+						//echo($query);
 						$result = mysqli_query($link, $query);
 
 						if ($result) {
@@ -83,7 +91,7 @@ include('header.php'); ?>
 					</div>
 				</div>
 			</div>
-			<div id="filters-wrapper" class="col-lg-2 order-1 order-lg-2 sticky-top">
+			<div id="filters-wrapper" class="col-lg-2 order-1 order-lg-2">
 				<div id="filters-button" class="col-12 d-block d-lg-none text-end ">
 					<button class="btn btn-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#filters" aria-expanded="false" aria-controls="filters"><i class="fa-light fa-sliders"></i></button>
 				</div>
@@ -92,7 +100,7 @@ include('header.php'); ?>
 					<form method="POST" action="">
 
 						<h5 class="fun-font">City</h5>
-						<div class="input-group has-validation">
+						<div class="input-group">
 							<input type="text" name="city_search" id="city_search" placeholder="Boise" class="form-control ui-autocomplete-input" style="display:inline-block;" autocomplete="off" value="<?=@$_POST['city_search']?>">
 							<input type="hidden" name="cityID" id="cityID" value="<?=(isset($_POST['cityID']) && sanitize_int($_POST['cityID'], 0))?$_POST['cityID']:''?>">
 						</div>
@@ -102,6 +110,28 @@ include('header.php'); ?>
 							<input type="hidden" name="date" id="date" value="<?=(isset($from) && isset($to))?($from . ' - ' . $to):''?>">
 						</div>
 
+						<h5 for="catIDs[]" class="fun-font mt-4">Genres</h5>
+						<div class="input-group btn-group">
+							<?
+							$query = "SELECT id, descr
+									FROM categories
+									ORDER BY descr
+							";
+							$i = 0;
+							$result = mysqli_query($link, $query);
+							if ($result && mysqli_num_rows($result) > 0) {
+
+								while ($row = mysqli_fetch_assoc($result)) {
+									$i++;
+									?>
+									<input type="checkbox" name="catIDs[]" value="<?=$row['id']?>"<? if (isset($catIDs) && in_array($row['id'], $catIDs)) echo(' checked'); ?> class="btn-check" id="btncheck<?=$i?>" autocomplete="off">
+									<label class="btn btn-outline-primary" for="btncheck<?=$i?>"><?=$row['descr']?></label>
+									<?
+								}
+							}
+							?>
+						</div>
+
 						<h5 for="ticket_price" class="fun-font mt-4">Ticket Price</h5>
 						<div id="ticket_price">
 							<div id="custom-handle" class="ui-slider-handle"></div>
@@ -109,15 +139,13 @@ include('header.php'); ?>
 						</div>
 
 						<h5 for="detailIDs" class="fun-font mt-4">Age Restriction</h5>
-						<div class="input-group">
-							<div class="btn-group" role="group" aria-label="Age Restrictions">
-								<input type="radio" name="age" value="28" id="age_28" class="btn-check" autocomplete="off"<?=(isset($_POST['age']) && $_POST['age'] == '28')?' checked':''?>>
-								<label class="btn btn-outline-primary" for="age_28">18+</label>
-								<input type="radio" name="age" value="29" id="age_29" class="btn-check" autocomplete="off"<?=(isset($_POST['age']) && $_POST['age'] == '29')?' checked':''?>>
-								<label class="btn btn-outline-primary" for="age_29">21+</label>
-								<input type="radio" name="age" value="30" id="age_30" class="btn-check" autocomplete="off"<?=(@$_POST['age'] != '28' && @$_POST['age'] != '29')?' checked':''?>>
-								<label class="btn btn-outline-primary" for="age_30">No Restriction</label>
-							</div>
+						<div class="input-group btn-group">
+							<input type="radio" name="age" value="28" id="age_28" class="btn-check" autocomplete="off"<?=(isset($age) && $age == '28')?' checked':''?>>
+							<label class="btn btn-outline-primary" for="age_28">18+</label>
+							<input type="radio" name="age" value="29" id="age_29" class="btn-check" autocomplete="off"<?=(isset($age) && $age == '29')?' checked':''?>>
+							<label class="btn btn-outline-primary" for="age_29">21+</label>
+							<input type="radio" name="age" value="30" id="age_30" class="btn-check" autocomplete="off"<?=(@$age != '28' && @$age != '29')?' checked':''?>>
+							<label class="btn btn-outline-primary" for="age_30">No Restriction</label>
 						</div>
 
 
@@ -130,57 +158,13 @@ include('header.php'); ?>
 		</div>
 	</div>
 
-<style>
-:root {
-	--litepicker-day-width: calc(100% / 7);
-}
-.litepicker {
-    font-family: inherit;
-    width: 100%;
-}
-.litepicker .container__months {
-	background-color: transparent;
-	-webkit-box-shadow: inherit;
-	box-shadow: inherit;
-}
-.litepicker .container__months .month-item-header {
-    padding: 0 0 10px;
-}
-.litepicker .container__months .month-item {
-    padding: 0;
-}
-.litepicker .container__days .day-item:hover {
-	background-color: #ffdb99;
-	-webkit-box-shadow: inherit;
-	box-shadow: inherit;
-}
-#ticket_price {
-	width: calc(100% - 3.5em);
-	margin-left: .5em;
-}
-#custom-handle {
-    width: 4em;
-    height: 1.6em;
-    top: 50%;
-    margin-top: -.8em;
-    text-align: center;
-    line-height: 1.6em;
-    font-size: .9rem;
-	font-family: realist,sans-serif;
-	font-weight: 400;
-	font-style: normal;
-    color: #fff;
-    background-color: rgb(0,0,0,.8);
-    border-color: #1a1e21;
-}
-</style>
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.css" />
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/plugins/mobilefriendly.js"></script>
 <script>
+let vh = window.innerHeight * 0.01;
+document.documentElement.style.setProperty('--vh', `${vh}px`);
+
+// date selector
 const picker = new Litepicker({
 	element: document.getElementById('date'),
 	parentEl: document.getElementById('range'),
@@ -198,6 +182,7 @@ const picker = new Litepicker({
 	}
 });
 
+/*
 $(() => {
   const stuckClass = 'is-stuck';
   const $stickyTopElements = $('.sticky-top');
@@ -235,54 +220,50 @@ myCollapsible.addEventListener('show.bs.collapse', function () {
 myCollapsible.addEventListener('hide.bs.collapse', function () {
   	document.querySelector("body").classList.toggle("filters-shown");
 });
-
+*/
 
 </script>
 
 <?
 $onready_more = <<<EOT
-
-$.scrollify({
-  section: ".event-card",
-  interstitialSection : "#filters-wrapper",
-  updateHash: false,
-  touchScroll:true,
-  setHeights: false,
-  easing: "easeOutExpo",
-  scrollSpeed: 500,
-});
-
-function debounce(func, wait, immediate) {
-  var timeout;
-  return function() {
-	var context = this,
-	  args = arguments;
-	var later = function() {
-	  timeout = null;
-	  if (!immediate) {
-		func.apply(context, args);
-	  }
-	};
-	var callNow = immediate && !timeout;
-	clearTimeout(timeout);
-	timeout = setTimeout(later, wait);
-	if (callNow) {
-	  func.apply(context, args);
+	$(window).resize(function() {
+		var width = $(this).width();
+		var height = $(this).height();
+		console.log('width -> ' + width)
+		console.log('height -> ' + height)
+		if (width <= 990) {
+			var offsetSize =  calculateHeights();
+			$('#event-cards').fullpage({
+				//options here
+				responsiveWidth: 0,
+				responsiveHeight: 0,
+				//verticalCentered: true,
+				paddingTop: offsetSize+'px',
+				afterRender: function(){
+				   var pluginContainer = this;
+				   console.log(pluginContainer);
+				   $('#event-cards').css('margin-top', '-'+offsetSize+'px');
+			   }
+			});
+			$('#filters-wrapper').addClass('sticky-top');
+		}
+	});
+	function calculateHeights(){
+		const headerHeight = $('nav').outerHeight();
+		const filterHeight = $('#filters-button').outerHeight();
+		console.log('header -> ' + headerHeight);
+		console.log('settings -> ' + filterHeight);
+		bothHeight = headerHeight + 16 + filterHeight;
+		//$('.event-card:first-child').height('calc(var(--vh, 1vh) * 100 - '+bothHeight+'px - 1rem)');
+		return bothHeight - convertRemToPixels(1);
 	}
-  };
-};
+	function convertRemToPixels(rem) {
+	    return rem * parseFloat(getComputedStyle(document.documentElement).fontSize);
+	}
 
-$(window).resize(debounce(function() {
-  var width = $(this).width();
-  console.log(width)
-  if(width < 768) {
-	$.scrollify.enable();
-  } else {
-	$.scrollify.disable();
-  }
-}, 50));
+	$(window).trigger('resize');
 
-$(window).trigger('resize');
+	// city selector
      $("#city_search").autocomplete({
 		appendTo: '#filters',
 		source: 'cities_search.php',
@@ -294,6 +275,7 @@ $(window).trigger('resize');
 		}
      });
 
+     // ticket price selector
 	var handle = $("#custom-handle");
 	$("#ticket_price").slider({
 		min: 0,

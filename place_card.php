@@ -1,6 +1,7 @@
 
-<div class="col event-card" id="<?=$row['venueID']?>">
+<div class="col event-card section" id="<?=$row['venueID']?>" data-section-name="<?=$row['name']?>">
 	<div class="ratio ratio-3x4" style="background-image:url('https://cdn.filestackcontent.com/resize=w:<?=isset($small_card)?'380':'650'?>/<?=$row['handle']?>'); background-size: cover; background-position: center center;">
+	<!-- <div class="ratio ratio-3x4" style="background-image:url('https://picsum.photos/650/800'); background-size: cover; background-position: center center;"> -->
 		<a href="event.php?id=<?=$row['id']?>" class="placecard-link"></a>
 		<div class="placecard-info-holder">
 			<div class="placecard-info-container<? if (isset($small_card)) echo(' small-card'); ?>">
@@ -28,7 +29,3 @@
 		</div>
 	</div>
 </div>
-
-<style>
-
-</style>

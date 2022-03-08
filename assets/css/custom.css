@@ -17,22 +17,7 @@
 	outline: 0;
 	box-shadow: none;
 }
-@media screen and (max-width: 990px){
-	#filters {
-		height: calc(100vh - 100px);
-	}
-	#filters.show{
-		height: calc(100vh - 38px);
-	}
-}
-@media screen and (min-width:767px){
-	#search {
-		position: absolute;
-		left: 50%;
-		transform: translateX(-50%);
-		width: 400px;
-	}
-}
+
 #placeImages{
 	z-index: 0;
 }
@@ -576,4 +561,48 @@ small .btn-sm { line-height: 1; }
 	}
 	.search-container .fa-magnifying-glass { font-size: .8em; }
 	.search-container span { top: 0px; }
+}
+@media screen and (max-width: 990px){
+	#filters {
+		height: calc(100vh - 100px);
+	}
+	#filters.show{
+		height: calc(100vh - 38px);
+	}
+	.event-card .ratio {
+		height: 100%;
+		position: relative;
+	}
+	.event-card{
+		padding-left: 0!important;
+		padding-right: 0!important;
+		height: calc(100vh - 38px);
+	}
+	.event-card .placecard-image-holder, .event-card .placecard-info-holder{
+		position: absolute;
+	}
+	.event-card .placecard-info-container {
+		padding: 20px;
+		width: calc(100% - 100px);
+	}
+	.placecard-image-holder a.favorite {
+		bottom: 15px;
+		right: 20px;
+	}
+	.placecard-image-holder a.venue {
+		bottom: 4.5em;
+		right: 10px;
+	}
+	.placecard-image-holder .follow-holder {
+		bottom: 3.4em;
+		right: 25px;
+	}
+}
+@media screen and (min-width:767px){
+	#search {
+		position: absolute;
+		left: 50%;
+		transform: translateX(-50%);
+		width: 400px;
+	}
 }
