@@ -1,8 +1,8 @@
-<?php
+<?
 ini_set('display_errors',1);
 error_reporting(E_ALL);
 
-require_once("security.php");
+require_once("security_check.php");
 require_once("config.php");
 include('rxs.php');
 
@@ -52,27 +52,39 @@ include('header.php'); ?>
 				<div class="container px-0">
 					<div id="event-cards" class="row row-cols-md-2 row-cols-1 g-lg-3">
 						<?
-						$query = "SELECT p.id, p.name, p.neighborhood, p.venueID, f.id as favorite, o.id as follow, v.profile_pic as venue_image,
-									GROUP_CONCAT(DISTINCT t.descr SEPARATOR '</button> &nbsp;<button class=\"btn categories\">') as genres,
-									i.handle
-								FROM places p
-						";
+						if ($logged_in) {
+							$query = "SELECT p.id, p.name, p.neighborhood, p.venueID, f.id as favorite, o.id as follow, v.handle as venue_handle, v.profile_pic as venue_image,
+										GROUP_CONCAT(DISTINCT t.descr SEPARATOR '</button> &nbsp;<button class=\"btn categories\">') as genres,
+										i.handle
+									FROM places p
+							";
+						} else {
+							$query = "SELECT p.id, p.name, p.neighborhood, p.venueID, NULL as favorite, NULL as follow, v.handle as venue_handle, v.profile_pic as venue_image,
+										GROUP_CONCAT(DISTINCT t.descr SEPARATOR '</button> &nbsp;<button class=\"btn categories\">') as genres,
+										i.handle
+									FROM places p
+							";
+						}
 						# age restriction
 						if (isset($age)) $query .= "JOIN places_details d ON p.id = d.placeID AND d.detailID = " . $age . " ";
 						# genres
 						if (isset($catIDs)) $query .= "JOIN places_categories c ON p.id = c.placeID AND c.catID IN (" . implode(',', $catIDs) . ") ";
-						$query .= "LEFT OUTER JOIN favorites f ON f.userID = " . $_COOKIE['id'] . " AND f.placeID = p.id
-								 LEFT OUTER JOIN places_categories j ON p.id = j.placeID
+						$query .= "LEFT OUTER JOIN places_categories j ON p.id = j.placeID
 								 LEFT OUTER JOIN categories t ON j.catID = t.id
 								 LEFT OUTER JOIN places_images i ON i.id = (SELECT id FROM places_images WHERE placeID = p.id ORDER BY seqno DESC LIMIT 1)
 								 LEFT OUTER JOIN users v ON v.id = p.venueID
-								 LEFT OUTER JOIN follows o ON o.userID = " . $_COOKIE['id'] . " AND o.followID = v.id
-								 WHERE p.status != 'I'
 						";
+						if ($logged_in) {
+							$query .= "LEFT OUTER JOIN favorites f ON f.userID = " . $_COOKIE['id'] . " AND f.placeID = p.id
+									 LEFT OUTER JOIN follows o ON o.userID = " . $_COOKIE['id'] . " AND o.followID = v.id
+							";
+						}
+						$query .= "WHERE p.status != 'I' ";
 						# city search
 						if (isset($cityID)) $query .= "AND p.cityID = " . $cityID . " ";
 						# date search
 						if (isset($from) && isset($to)) $query .= "AND p.id IN (SELECT DISTINCT placeID FROM places_calendar WHERE date BETWEEN '" . $from . "' AND '" . $to . "') ";
+						else $query .= "AND p.id IN (SELECT DISTINCT placeID FROM places_calendar WHERE date >= '" . date('Y-m-d') . "') ";
 						# ticket price max
 						if (isset($max_price)) $query .= "AND ticket_price_low <= " . $max_price . " ";
 						$query .= "GROUP BY p.id
@@ -83,7 +95,7 @@ include('header.php'); ?>
 
 						if ($result) {
 							while ($row = mysqli_fetch_assoc($result)) {
-								$row['offer'] = $row['preferred'] = 0;
+								if (!$logged_in) $can_fav = false;
 								include('place_card.php');
 							}
 						}
@@ -144,7 +156,7 @@ include('header.php'); ?>
 							<label class="btn btn-outline-primary" for="age_28">18+</label>
 							<input type="radio" name="age" value="29" id="age_29" class="btn-check" autocomplete="off"<?=(isset($age) && $age == '29')?' checked':''?>>
 							<label class="btn btn-outline-primary" for="age_29">21+</label>
-							<input type="radio" name="age" value="30" id="age_30" class="btn-check" autocomplete="off"<?=(@$age != '28' && @$age != '29')?' checked':''?>>
+							<input type="radio" name="age" value="30" id="age_30" class="btn-check" autocomplete="off"<?=(isset($age) && $age == '30')?' checked':''?>>
 							<label class="btn btn-outline-primary" for="age_30">No Restriction</label>
 						</div>
 
@@ -164,6 +176,21 @@ include('header.php'); ?>
 let vh = window.innerHeight * 0.01;
 document.documentElement.style.setProperty('--vh', `${vh}px`);
 
+function calculateHeights(){
+	const headerHeight = $('nav').outerHeight();
+	const filterHeight = $('#filters-wrapper').outerHeight();
+	//console.log('header -> ' + headerHeight);
+	//console.log('settings -> ' + filterHeight);
+	bothHeight = headerHeight + 24 + filterHeight;
+	//$('.event-card:first-child').height('calc(var(--vh, 1vh) * 100 - '+bothHeight+'px - 1rem)');
+	return bothHeight - convertRemToPixels(1);
+}
+function convertRemToPixels(rem) {
+    return rem * parseFloat(getComputedStyle(document.documentElement).fontSize);
+}
+
+var offsetSize = calculateHeights();
+
 // date selector
 const picker = new Litepicker({
 	element: document.getElementById('date'),
@@ -181,47 +208,6 @@ const picker = new Litepicker({
 	    years: false
 	}
 });
-
-/*
-$(() => {
-  const stuckClass = 'is-stuck';
-  const $stickyTopElements = $('.sticky-top');
-
-  const determineSticky = () => {
-    $stickyTopElements.each((i, el) => {
-      const $el = $(el);
-      const stickPoint = parseInt($el.css('top'), 0);
-      const currTop = el.getBoundingClientRect().top;
-      const isStuck = currTop <= stickPoint;
-      $el.toggleClass(stuckClass, isStuck);
-    });
-
-  };
-
-  //run immediately
-  determineSticky();
-
-  //Run when the browser is resized or scrolled
-  //Uncomment below to run less frequently with a debounce
-  //let debounce = null;
-  $(window).on('resize scroll', () => {
-    //clearTimeout(debounce);
-    //debounce = setTimeout(determineSticky, 100);
-
-    determineSticky();
-  });
-
-});
-
-var myCollapsible = document.getElementById('filters');
-myCollapsible.addEventListener('show.bs.collapse', function () {
-  	document.querySelector("body").classList.toggle("filters-shown");
-});
-myCollapsible.addEventListener('hide.bs.collapse', function () {
-  	document.querySelector("body").classList.toggle("filters-shown");
-});
-*/
-
 </script>
 
 <?
@@ -232,34 +218,18 @@ $onready_more = <<<EOT
 		console.log('width -> ' + width)
 		console.log('height -> ' + height)
 		if (width <= 990) {
-			var offsetSize =  calculateHeights();
 			$('#event-cards').fullpage({
 				//options here
 				responsiveWidth: 0,
 				responsiveHeight: 0,
-				//verticalCentered: true,
-				paddingTop: offsetSize+'px',
 				afterRender: function(){
 				   var pluginContainer = this;
 				   console.log(pluginContainer);
-				   $('#event-cards').css('margin-top', '-'+offsetSize+'px');
 			   }
 			});
 			$('#filters-wrapper').addClass('sticky-top');
 		}
 	});
-	function calculateHeights(){
-		const headerHeight = $('nav').outerHeight();
-		const filterHeight = $('#filters-button').outerHeight();
-		console.log('header -> ' + headerHeight);
-		console.log('settings -> ' + filterHeight);
-		bothHeight = headerHeight + 16 + filterHeight;
-		//$('.event-card:first-child').height('calc(var(--vh, 1vh) * 100 - '+bothHeight+'px - 1rem)');
-		return bothHeight - convertRemToPixels(1);
-	}
-	function convertRemToPixels(rem) {
-	    return rem * parseFloat(getComputedStyle(document.documentElement).fontSize);
-	}
 
 	$(window).trigger('resize');
 

@@ -1,6 +1,8 @@
-.placecard-link {
-	z-index: 99999999999;
+/* pallette */
+:root {
+  --darkgold: #ffaf1a;
 }
+
 #filters-wrapper{
 	background: #fefaf1;
 	height: auto;
@@ -35,7 +37,7 @@ a.dark-link{
 }
 a.dark-link:hover,
 a.dark-link:active{
-	color: red;
+	color: var(--darkgold);
 }
 .event-image-holder {
 	position: relative;
@@ -421,6 +423,7 @@ small .btn-sm { line-height: 1; }
 	font-size: 2rem;
 }
 .right-navigation a.btn { padding: 0.375rem; font-size: 1.5em; }
+.right-navigation a.btn:hover { color: var(--darkgold); }
 
 /* search */
 .search {
@@ -455,6 +458,9 @@ small .btn-sm { line-height: 1; }
 }
 
 /* placecards */
+.placecard-link { z-index: 10002; }
+.placecard-image-holder { z-index: 10001; }
+
 .placecard-title {
 	font-size: 1.5rem;
 	line-height: 1.35rem;
@@ -494,7 +500,13 @@ small .btn-sm { line-height: 1; }
     right: 0;
     color: rgb(255, 255, 255, 1);
 }
-.placecard-image-holder a.venue .profile-icon {
+.placecard-image-holder a.venue_alone {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    color: rgb(255, 255, 255, 1);
+}
+.placecard-image-holder a.venue .profile-icon, .placecard-image-holder a.venue_alone .profile-icon {
 	border: 3px solid white;
 }
 .placecard-image-holder .follow-holder {
@@ -510,8 +522,16 @@ small .btn-sm { line-height: 1; }
 	position: absolute;
 	right: 0;
 	top: 0;
-	color: white;
+	color: rgb(255, 255, 255, 1);
 }
+
+/* other follow & favorite clickables */
+h1 .follow, h1 .edit {
+	color: #212529;
+	font-size: 65%;
+	vertical-align: middle;
+}
+
 
 /* date selector */
 :root {
@@ -578,8 +598,10 @@ small .btn-sm { line-height: 1; }
 	border-radius: .25rem;
 }
 .actions:hover {
-	color: #ffaf1a;
+	color: var(--darkgold);
 }
+
+
 
 /* giant screens */
 @media screen and (min-width: 1680px) {
@@ -633,7 +655,11 @@ small .btn-sm { line-height: 1; }
 	}
 	.placecard-image-holder a.venue {
 		bottom: 4.5em;
-		right: 10px;
+		right: 1em;
+	}
+	.placecard-image-holder a.venue_alone {
+		bottom: 1em;
+		right: 1em;
 	}
 	.placecard-image-holder .follow-holder {
 		bottom: 3.4em;
